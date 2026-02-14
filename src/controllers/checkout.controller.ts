@@ -11,15 +11,14 @@ export const checkout = async(req: AuthRequest, resp: Response) => {
         // ADD THE PRODUCTS TO THE ORDER ITEMS TABLE
         // REMOVE ITEMS FROM CART
 
-        const { user_id } = req.user.id;
-
+        const user_id  = req.user.id;
         await client.query("BEGIN");
 
         const CartQuery = `
             SELECT c.user_id, c.quantity, c.product_id, p.name, p.price, p.quantity as stock
             FROM cart_items c
             JOIN products p ON p.id = c.product_id
-            WHERE user_id $1 FOR UPDATE OF p`
+            WHERE c.user_id =  $1 FOR UPDATE OF p`
         
         const cart = await pool.query(CartQuery,[user_id])
         if(cart.rows.length === 0){

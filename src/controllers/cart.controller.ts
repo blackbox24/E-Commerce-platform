@@ -5,8 +5,9 @@ import type { AuthRequest } from "../middleware/jwt.middleware.ts";
 export const getCartItems = async (req: AuthRequest, resp: Response) => {
   try {
     const user_id = req.user.id;
+    console.log(user_id)
     const query = `
-            SELECT c.id, c.quantity, p.name, p.photo_url, p.price 
+            SELECT c.id,c.user_id, c.quantity, p.name, p.photo_url, p.price 
             FROM cart_items AS c 
             JOIN products AS p ON  c.product_id = p.id
             WHERE c.user_id = $1
