@@ -1,0 +1,36 @@
+{
+  "name": "e-commerce-platform",
+  "version": "1.0.0",
+  "description": "E-Commerce platform with cart and payment gateway integration.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts"
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackbox24/E-Commerce-platform.git"
+  },
+  "author": "Hope Decardi-Nelson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blackbox24/E-Commerce-platform/issues"
+  },
+  "homepage": "https://github.com/blackbox24/E-Commerce-platform#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.2.3",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.18.0"
+  }
+}
