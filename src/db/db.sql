@@ -26,3 +26,14 @@ CREATE TABLE IF NOT EXISTS products (
 
 
 CREATE UNIQUE INDEX idx_products_name ON products (name);
+
+CREATE TABLE IF NOT EXISTS cart_items (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id BIGINT NOT NULL, -- Assumes you have a 'users' table
+    product_id BIGINT REFERENCES products(id) ON DELETE CASCADE,
+    quantity INT NOT NULL DEFAULT 1 CHECK (quantity > 0),
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Prevents duplicate rows for the same product per user
+    UNIQUE(user_id, product_id) 
+);
