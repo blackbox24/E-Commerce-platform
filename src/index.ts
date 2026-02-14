@@ -13,7 +13,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-app.use("/api/auth/",auth_router);
+app.use("/api/auth",auth_router);
 
 app.get("/api/healthy",async(req: Request, resp: Response)=>{
     resp.status(200).json({message:"Server is healthy and running on PORT "+ PORT})

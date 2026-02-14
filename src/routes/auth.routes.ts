@@ -3,7 +3,7 @@ import { Signup } from "../controllers/auth.controller.ts";
 
 const router = Router()
 
-router.post("regsiter/",Signup)
+router.post("/register/",Signup)
 
 
 export default router;

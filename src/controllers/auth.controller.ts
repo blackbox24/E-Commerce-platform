@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config()
 
-const BCRYPT_SALT = process.env.BCRYPT_SALT || 10
+const BCRYPT_SALT = process.env.BCRYPT_SALT || "10"
 
 export const Signup = async(req: Request, resp: Response) => {
     try{
@@ -33,7 +33,7 @@ export const Signup = async(req: Request, resp: Response) => {
             return resp.status(409).json({message:"User already exists"})
         }
 
-        const hashpassword = await bcrypt.hash(password, BCRYPT_SALT)
+        const hashpassword = await bcrypt.hash(password, parseInt(BCRYPT_SALT))
         const query = `
             INSERT INTO users(first_name, middle_name, last_name, username,email, password, role)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -51,11 +51,10 @@ export const Signup = async(req: Request, resp: Response) => {
 
         const newUser = await pool.query(query,values);
 
-        return resp.status(201).json({message: "User successfully created",user:newUser})
+        return resp.status(201).json({message: "User successfully created",user:newUser.rows[0]})
 
-        return 
     }catch(error){
         console.log(error)
-        resp.status(500).json({message: "An error occurred",error:error})
+        return resp.status(500).json({message: "An error occurred",error:error})
     }
 }
