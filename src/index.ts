@@ -2,7 +2,7 @@ import express from "express";
 import type {Request, Response} from "express"
 import cors from "cors";
 import * as dotenv from "dotenv"
-
+import pool from "./config/db.ts";
 dotenv.config()
 
 

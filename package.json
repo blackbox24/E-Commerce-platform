@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/blackbox24/E-Commerce-platform#readme",
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.2.3",
