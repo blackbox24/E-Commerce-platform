@@ -76,6 +76,7 @@ export const Login = async(req: Request, resp: Response) => {
         const hash_password = user_exists.rows[0].password;
         const email = user_exists.rows[0].email;
         const role = user_exists.rows[0].role;
+        const user_id = user_exists.rows[0].id;
         const validPassword = await bcrypt.compare(password, hash_password);
 
         if(!validPassword){
@@ -83,6 +84,7 @@ export const Login = async(req: Request, resp: Response) => {
         }
 
         const access_token = jwt.sign({
+            id:user_id,
             username,email,role
         }, JWT_SECRET as string, {expiresIn: '1d'} )
 

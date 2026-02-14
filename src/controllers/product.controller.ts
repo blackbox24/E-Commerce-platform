@@ -10,14 +10,14 @@ export const getAllProducts = async(req: Request, resp:Response) => {
             const nameSearch = `%${name}%` || null;
             const priceSearch = `%${price}%` || null;
             const query = `
-                SELECT name, price, quantity 
+                SELECT id, name, price, quantity 
                 FROM products 
                 WHERE ($1::text IS NOT NULL AND name ILIKE $1)
                 OR ($2::text IS NOT NULL AND price::text LIKE $2)
             `;
             products = await pool.query(query,[nameSearch,priceSearch]);
         }else{
-            products = await pool.query(`SELECT name, price, quantity FROM products`);
+            products = await pool.query(`SELECT id, name, price, quantity FROM products`);
         }
         if(products.rows.length === 0){
             return resp.status(200).json({message:"Success",products:[]})
