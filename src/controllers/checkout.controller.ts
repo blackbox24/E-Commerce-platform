@@ -5,7 +5,8 @@ import Stripe from "stripe"
 import * as dotenv from "dotenv";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "")
-export const checkout = async(req: AuthRequest, resp: Response) => {
+
+export const checkout = async(session: Stripe.Checkout.Session) => {
     const client = await pool.connect();
     try{
         // TODO 
@@ -14,7 +15,9 @@ export const checkout = async(req: AuthRequest, resp: Response) => {
         // ADD THE PRODUCTS TO THE ORDER ITEMS TABLE
         // REMOVE ITEMS FROM CART
 
-        const user_id  = req.user.id;
+        const user_id  = session.metadata?.user_id;
+        if (!user_id) throw new Error("No user_id found in session metadata");
+
         await client.query("BEGIN");
 
         const CartQuery = `
@@ -28,13 +31,7 @@ export const checkout = async(req: AuthRequest, resp: Response) => {
             throw new Error("Cart is empty")
         }
 
-        let totalAmount = 0;
-        for(const item of cart.rows){
-            if(item.stock < item.quantity){
-                throw new Error("Insufficient stock for product ID: " + item.product_id)
-            }
-            totalAmount += item.price * item.quantity;
-        }
+        let totalAmount = (session.amount_total || 0) / 100
 
         // create the order
         const orderResult = await client.query(
@@ -61,12 +58,12 @@ export const checkout = async(req: AuthRequest, resp: Response) => {
 
         await client.query('COMMIT'); // Finalize everything
 
-        return resp.status(200).json({ message: "Checkout successful", orderId });
+        console.log(`Order ${orderId} fulfilled successfully for user ${user_id}`);
 
     }catch(error){
         await client.query('ROLLBACK'); // Undo everything if any step fails
         console.error(error);
-        return resp.status(400).json({ message: error?.message || "Checkout failed" });
+        throw error;
     } finally {
         client.release(); // Return connection to pool
     }
@@ -109,4 +106,29 @@ export const createStripeSession = async(req: AuthRequest, resp: Response) => {
         console.error(error)
         return resp.status(500).json({ message: "Stripe error", error:error });
     }
+}
+
+export const stripeWebhook = async(req: AuthRequest, resp: Response) => {
+    const sig = req.headers['stripe-signature'] || "";
+     let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    } catch (err) {
+        return resp.status(400).send(`Webhook Error: ${err?.message}`);
+    }
+        if (event.type === 'checkout.session.completed') {
+        const session = event.data.object as Stripe.Checkout.Session;
+        
+        // NOW execute your DB Transaction logic from the previous step!
+        // Use session.metadata.user_id to know who bought it.
+        try{
+            await checkout(session); 
+        }catch(error){
+            console.error(error);
+            resp.status(400).json({message:"Failed to checkout",error:error})
+        }
+    }
+
+    resp.json({ received: true });
 }
