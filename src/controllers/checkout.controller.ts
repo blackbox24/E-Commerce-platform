@@ -20,7 +20,7 @@ export const checkout = async(req: AuthRequest, resp: Response) => {
             JOIN products p ON p.id = c.product_id
             WHERE c.user_id =  $1 FOR UPDATE OF p`
         
-        const cart = await pool.query(CartQuery,[user_id])
+        const cart = await client.query(CartQuery,[user_id])
         if(cart.rows.length === 0){
             throw new Error("Cart is empty")
         }
