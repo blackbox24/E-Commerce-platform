@@ -1,6 +1,7 @@
 import type {Request, Response } from "express"
 import pool from "../config/db.ts";
 
+
 export const getAllProducts = async(req: Request, resp:Response) => {
     try{
         const { name, price } = req.query;
@@ -52,3 +53,46 @@ export const getSingleProduct = async(req: Request, resp:Response) => {
     }
 }
 
+
+export const addProduct = async(req:Request, resp: Response) => {
+    try{
+        const {
+            name, 
+            quantity,
+            price,
+        } = req.body
+
+        if(!name || !quantity || !price){
+            return resp.status(400).json({message: "Name, quantity and price fields are required"})
+        }
+        if(price <= 0 || quantity < 1){
+            return resp.status(400).json({message: "Quantity or price should be more than 1"});
+        }
+        let photo_url;
+        if( req.file ){
+            // store the file locally
+            photo_url = req.file.path;
+            console.log(req.file.path)
+        }
+        else{
+            photo_url = null;
+        }
+        const {rows} = await pool.query(`
+            INSERT INTO products(name, price, quantity, photo_url) VALUES ($1, $2, $3, $4) RETURNING *;
+        `,[
+            name, 
+            price,
+            quantity,
+            photo_url
+            
+        ])
+
+        return resp.status(201).json({message: "Success", product: rows[0]})
+    }catch(error){
+        console.log(error);
+        if (error?.code === '23505') {
+            return resp.status(409).json({ message: "A product with this name already exists" });
+        }
+        return resp.status(500).json({message: "Failed to save product", error:error})
+    }
+}
