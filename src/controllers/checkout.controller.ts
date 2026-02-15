@@ -1,7 +1,10 @@
 import type { Request, Response } from "express"
 import pool from "../config/db.ts"
 import type { AuthRequest } from "../middleware/jwt.middleware.ts"
+import Stripe from "stripe"
+import * as dotenv from "dotenv";
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "")
 export const checkout = async(req: AuthRequest, resp: Response) => {
     const client = await pool.connect();
     try{
@@ -66,5 +69,44 @@ export const checkout = async(req: AuthRequest, resp: Response) => {
         return resp.status(400).json({ message: error?.message || "Checkout failed" });
     } finally {
         client.release(); // Return connection to pool
+    }
+}
+
+export const createStripeSession = async(req: AuthRequest, resp: Response) => {
+    try {
+        const user_id = req.user.id;
+        const query = `
+            SELECT c.* , p.name, p.price FROM cart_items c
+            JOIN products p ON p.id = c.product_id
+            WHERE user_id = $1
+        `;
+        const {rows: cart_items } = await pool.query(query,[user_id]);
+        if(cart_items.length === 0){
+            return resp.status(400).json({message:"Cart is empty"})
+        }
+
+        const line_items = cart_items.map(item => ({
+            price_data: {
+                currency: "usd",
+                product_data: {name: item.name},
+                unit_amount: Math.round(item.price * 100)
+            },
+            quantity: item.quantity
+        }))
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items,
+            mode: "payment",
+            success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.CLIENT_URL}/cart`,
+            customer_email: req.user.email,
+            metadata: { user_id: user_id.toString() } 
+        });
+
+        return resp.status(200).json({message:"session created successfully", url: session.url})
+    } catch (error) {
+        console.error(error)
+        return resp.status(500).json({ message: "Stripe error", error:error });
     }
 }
