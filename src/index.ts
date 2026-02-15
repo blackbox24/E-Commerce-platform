@@ -6,6 +6,7 @@ import auth_router from "./routes/auth.routes.ts"
 import product_router from "./routes/products.routes.ts"
 import cart_router from "./routes/cart.routes.ts"
 import checkout_router from "./routes/checkout.routes.ts"
+import order_router from "./routes/orders.routes.ts"
 
 dotenv.config()
 
@@ -21,6 +22,7 @@ app.use("/api/auth",auth_router);
 app.use("/api/products", product_router);
 app.use("/api/carts", cart_router);
 app.use("/api/checkout",checkout_router);
+app.use("/api/orders",order_router);
 
 app.get("/api/healthy",async(req: Request, resp: Response)=>{
     resp.status(200).json({message:"Server is healthy and running on PORT "+ PORT})
