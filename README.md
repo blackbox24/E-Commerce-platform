@@ -32,8 +32,8 @@ E-Commerce platform with cart and payment gateway integration.
 [x] GET ALL PRODUCTS
 [x] GET SINGLE PRODUCT
 [x] ADD PRODUCT
-[ ] UPDATE PRODUCT
-[ ] DELETE PRODUCT
+[x] UPDATE PRODUCT
+[x] DELETE PRODUCT
 
 ### CART
 

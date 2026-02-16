@@ -137,21 +137,20 @@ export const updateProduct = async(req:Request, resp: Response) => {
                 price = $2, 
                 quantity = $3, 
                 photo_url = $4 
+            WHERE id = $5
             RETURNING *;
         `,[
             name, 
             price,
             quantity,
-            photo_url
+            photo_url,
+            id
             
         ])
 
         return resp.status(201).json({message: "Success", product: rows[0]})
     }catch(error){
         console.log(error);
-        if (error?.code === '23505') {
-            return resp.status(409).json({ message: "A product with this name already exists" });
-        }
         return resp.status(500).json({message: "Failed to save product", error:error})
     }
 }
