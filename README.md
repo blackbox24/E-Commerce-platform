@@ -53,9 +53,10 @@ E-Commerce platform with cart and payment gateway integration.
 
 ### USERS
 
-- [ ] VIEW ALL USERS
-- [ ] VIEW SINGLE USER
-- [ ] DELETE USER
+- [x] VIEW ALL USERS
+- [x] VIEW SINGLE USER
+- [x] UPDATE USER
+- [x] DELETE USER
 
 ## FRONTEND
 
