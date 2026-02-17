@@ -7,6 +7,7 @@ import product_router from "./routes/products.routes.ts"
 import cart_router from "./routes/cart.routes.ts"
 import checkout_router from "./routes/checkout.routes.ts"
 import order_router from "./routes/orders.routes.ts"
+import user_router from "./routes/user.route.ts";
 import multer, { type StorageEngine} from "multer";
 
 import { fileURLToPath } from 'url';
@@ -50,6 +51,7 @@ app.use("/api/products",  upload.single('photo_url'), product_router);
 app.use("/api/carts", cart_router);
 app.use("/api/checkout",checkout_router);
 app.use("/api/orders",order_router);
+app.use("/api/users",user_router);
 
 app.get("/api/healthy",async(req: Request, resp: Response)=>{
     resp.status(200).json({message:"Server is healthy and running on PORT "+ PORT})

@@ -68,9 +68,73 @@ export const addUser = async(req: Request, resp: Response) => {
 
     }catch(error){
         console.log(error);
-        if (error?.code === '23505') {
+        if (error instanceof Error && 'code' in error && error?.code === '23505') {
             return resp.status(409).json({ message: "A user with these detail already exists" });
         }
         return resp.status(500).json({message: "Failed to save product", error:error})
+    }
+}
+
+export const updateUser = async(req: Request, resp: Response) => {
+    try {
+        const { id } = req.params;
+        const {
+            first_name,
+            middle_name,
+            last_name,
+            username,
+            email,
+            role,
+        } = req.body;
+
+        if(!first_name || !last_name || !username || !email || !role){
+            return resp.status(400).json({message: "All fields are required"});
+        }
+
+        const result = await pool.query(`
+            UPDATE users 
+            SET 
+                first_name = $1,
+                middle_name = $2,
+                last_name = $3,
+                username = $4,
+                email = $5,
+                role = $6
+            WHERE id = $7
+            RETURNING *;
+        `, [
+            first_name,
+            middle_name,
+            last_name,
+            username,
+            email,
+            role
+        ])
+
+        if(result.rowCount === 0){
+            return resp.status(404).json({message:"User not found"})
+        }
+
+        return resp.status(200).json({message: "User updated successfully", user:result.rows[0]})
+        
+    } catch (error) {
+        console.error(error);
+        return resp.status(500).json({message: "An unexpected error occurred",error:error})
+    }
+}
+
+
+export const deleteUser = async(req: Request, resp: Response)=>{
+    try {
+        const { id } = req.params;
+        const result = await pool.query("DELETE FROM users WHERE id = $1");
+        if(result.rowCount === 0){
+            return resp.status(404).json({message:"User not found"})
+        }
+
+        return resp.status(200).json({message: "User deleted successfully"})
+    } catch (error) {
+        console.error(error);
+        return resp.status(500).json({message: "An unexpected error occurred"})
     }
 }
