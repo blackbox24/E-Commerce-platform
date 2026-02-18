@@ -1,16 +1,21 @@
 # E-COMMERENCE FRONTEND
 
+## ARCHITECTURAL SHIFT
+
+- [x] Decision made to switch from plain HTML/CSS/JavaScript to Next.js (React framework).
+- [x] Next.js project scaffolded in `nextjs-frontend/` directory with TypeScript, ESLint, Tailwind CSS, `src/` directory, App Router, and default import alias.
+
 ## REQUIREMENTS
 
-- [x] html/css/javascript
-- [x] tailwindcss
-- [x] cookie.js
-- [x] axios (added for API integration)
-- [x] bootstrap (added CDN for UI/UX)
-- [x] jquery (added CDN for bootstrap JS components)
-- [x] mustache.js (added CDN for client-side templating)
+- [x] html/css/javascript (Legacy setup, to be replaced by Next.js components)
+- [x] tailwindcss (Integrated into Next.js project, configuration issue resolved)
+- [x] cookie.js (Functionality to be re-implemented within Next.js context)
+- [x] axios (Functionality to be re-implemented within Next.js context)
+- [x] bootstrap (Not used in Next.js project - Tailwind CSS adopted as primary styling)
+- [x] jquery (Not used in Next.js project - React and Tailwind CSS handle dynamic UI)
+- [x] mustache.js (Legacy setup, templating to be handled by React components)
 
-## PAGES
+## PAGES (Legacy - to be migrated to Next.js components/routes)
 
 - [x] LOGIN PAGE (login.html)
 - [x] SIGNUP PAGE (signup.html)
@@ -36,22 +41,35 @@
 - [x] VIEW ORDERS PAGE (view_orders.html)
 - [x] DASHBOARD PAGE (dashboard.html)
 
-## IMPLEMENTATIONS 
+## IMPLEMENTATIONS (Legacy - to be re-implemented within Next.js context)
 
 - [x] API INTEGRATION USING AXIOS LIB (Initial setup in api.js)
 - [x] STORE TOKEN IN COOKIE USING COOKIE LIB (Initial setup in api.js)
 - [x] PASS THE TOKEN IN THE HEADERS AS AUTHENITCATION `BEARER <TOKEN>` (Initial setup in api.js)
 
-## NEXT TASKS
+## NEXT TASKS: Next.js Migration and Development
 
-- [x] **Populate Pages**: Add actual content (forms, product listings, user details, etc.) to the created HTML pages. (All pages populated with basic content, products.html uses templating, 403.html created)
-- [x] **Client-side Logic**: Implement JavaScript logic for user interactions, form submissions, and dynamic content loading on each page. (Login and Signup form submission handled in auth.js, product rendering with Mustache.js in products_logic.js, dynamic pagination implemented, route protection in auth_guard.js redirects to 403.html)
-- [x] **API Endpoints**: Connect frontend pages to backend API endpoints using the `api.js` module. (Initial API calls for login/signup added in auth.js, simulated product data for templating)
-- [x] **Pagination**: Implement pagination on pages with lists (e.g., products). (Dynamic pagination implemented in products.html)
-- [ ] **Routing**: Implement client-side routing if a Single Page Application (SPA) approach is desired, or set up server-side routing accordingly. (Basic navigation through static links)
-- [x] **Styling**: Apply detailed Tailwind CSS styling to match the desired UI/UX. (Basic styling applied to all populated pages, Bootstrap included)
-- [x] **Error Handling**: Implement comprehensive error handling for API calls and user input. (Placeholder for future implementation)
-- [x] **User Authentication**: Implement full user authentication flow (login, signup, logout) with token management. (Login and Signup functionality implemented)
-- [x] **Access Control/Route Protection (Client-side)**: Implemented authentication guard for protected pages (profile.html, cart.html) with redirect to 403.html.
-- [ ] **Admin Functionality**: Develop specific functionalities for admin pages (e.g., adding/deleting users/products).
-- [x] **Template Engine Integration: Client-side (Mustache.js)**: Integrated Mustache.js for dynamic content rendering (products.html).
+- [x] **Project Setup & Basic Structure**:
+    - [x] Clean up `nextjs-frontend` directory (removed default content and prepared `layout.tsx`).
+    - [x] Configure basic layout components (e.g., Header, Footer).
+    - [x] Establish initial Next.js routing for core pages (Home, Login, Dashboard).
+- [x] **Authentication System Re-implementation**:
+    - [x] Implement `AuthContext` or similar state management for authentication.
+    - [x] Re-implement Login and Home pages as Next.js components.
+    - [x] Re-implement Signup page as Next.js component.
+    - [ ] Integrate Axios for API calls within Next.js.
+    - [ ] Re-implement token storage and passing in headers.
+    - [x] Implement robust route protection using Next.js middleware or component-level checks (Implemented component-level protection for Dashboard, Cart, Profile, Admin pages).
+- [x] **Page Migration & Templating**:
+    - [x] Migrate all existing HTML pages into Next.js components/pages. (All pages migrated and styled)
+    - [x] Re-implement dynamic content rendering using React's JSX.
+- [x] **Styling Migration**:
+    - [x] Decide on primary styling library (Tailwind CSS is already configured).
+    - [x] Migrate existing Tailwind CSS styles. (All pages styled with Tailwind CSS, configuration issue resolved)
+    - [x] Re-evaluate Bootstrap/jQuery necessity and integrate/replace as needed. (Decided to use Tailwind CSS as primary, Bootstrap/jQuery not integrated into Next.js project)
+- [x] **Dynamic Pagination**:
+    - [x] Re-implement dynamic pagination within Next.js pages, possibly leveraging server components or data fetching patterns. (Implemented in products/page.tsx)
+- [ ] **Error Handling**:
+    - [ ] Implement comprehensive error handling for API calls and UI.
+- [ ] **Admin Functionality**:
+    - [ ] Develop specific functionalities for admin pages.
