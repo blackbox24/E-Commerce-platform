@@ -17,7 +17,6 @@ E-Commerce platform with cart and payment gateway integration.
 - Use html /css and any templating engine like Jinga or EJS
 - Interact with the API's using POSTMAN
 
-
 ## TODOS
 
 ### BACKEND
@@ -44,7 +43,8 @@ E-Commerce platform with cart and payment gateway integration.
 
 ### ORDER
 
-- [x] GET ALL ORDERS
+- [x] GET ALL ORDERS FOR CLIENT
+- [ ] GET ALL ORDERS FOR ADMIN
 
 ### CHECKOUT
 
