@@ -1,3 +1,4 @@
+https://roadmap.sh/projects/ecommerce-api
 # Full-Stack E-Commerce Platform
 
 A production-ready, full-stack e-commerce solution built with **Next.js**, **Express**, and **PostgreSQL**. This platform features a secure shopping experience, administrative management tools, and seamless **Stripe** payment integration.
