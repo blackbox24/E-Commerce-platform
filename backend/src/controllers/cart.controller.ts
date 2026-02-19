@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
 import pool from "../config/db.ts";
 import type { AuthRequest } from "../middleware/jwt.middleware.ts";
 

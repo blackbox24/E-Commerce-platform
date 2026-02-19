@@ -39,7 +39,6 @@ export const getAllClientOrders = async(req: AuthRequest, resp: Response) => {
 
 export const getAllAdminOrders = async(req: AuthRequest, resp: Response) => {
     try{
-        const user_id = req.user.id;
         const results = await pool.query(`
             SELECT  
                 o.id AS order_id,

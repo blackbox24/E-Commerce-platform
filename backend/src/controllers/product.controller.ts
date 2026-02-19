@@ -5,27 +5,44 @@ import type { AuthRequest } from "../middleware/jwt.middleware.ts";
 
 export const getAllProducts = async(req: Request, resp:Response) => {
     try{
-        const { name, price } = req.query;
+        const { name, price, limit, page } = req.query;
+        
+        // Handle and validate pagination values
+        let limitNum = parseInt(limit as string) || 8;
+        let pageNum = parseInt(page as string) || 1;
 
-        let products;
+        if (limitNum < 1 || limitNum > 100) limitNum = 8; // Max limit 100 for safety
+        if (pageNum < 1) pageNum = 1;
+
+        const offset = (pageNum - 1) * limitNum;
+        let query = "SELECT id, name, price, quantity, photo_url FROM products"
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let values:any[] = [];
+
         if (name || price){
-            const nameSearch = `%${name}%` || null;
-            const priceSearch = `%${price}%` || null;
-            const query = `
-                SELECT id, name, price, quantity, photo_url
-                FROM products 
+            // eslint-disable-next-line no-constant-binary-expression
+            const nameSearch = name ? `%${name}%` : null;
+            // eslint-disable-next-line no-constant-binary-expression
+            const priceSearch = price ? `%${price}%` : null;
+            query += `
                 WHERE ($1::text IS NOT NULL AND name ILIKE $1)
                 OR ($2::text IS NOT NULL AND price::text LIKE $2)
             `;
-            products = await pool.query(query,[nameSearch,priceSearch]);
-        }else{
-            products = await pool.query(`SELECT id, name, price, quantity, photo_url FROM products`);
+            values = [nameSearch,priceSearch];
         }
-        if(products.rows.length === 0){
-            return resp.status(200).json({message:"Success",products:[]})
-        }
+        query += `LIMIT $${values.length + 1} OFFSET $${ values.length + 2 }`;
+        values.push(Number(limit),offset)
+
+        const products = await pool.query(query, values);
+        const countQuery = await pool.query("SELECT COUNT(*) FROM products");
         
-        return resp.status(200).json({message:"Success",products:products.rows})
+        
+        return resp.status(200).json({
+            message:"Success",
+            products:products.rows,
+            total: Number(countQuery.rows[0].count),
+            totalPages: Math.ceil(parseInt(countQuery.rows[0].count) / Number(limit))
+        })
     }catch(error){
         console.error("An error occurried",error)
         return resp.status(500).json({message: "An error occurried",error:error})
@@ -91,7 +108,11 @@ export const addProduct = async(req:Request, resp: Response) => {
         return resp.status(201).json({message: "Success", product: rows[0]})
     }catch(error){
         console.log(error);
-        if (error?.code === '23505') {
+        if (error !== null &&
+              typeof error === "object" &&
+              "code" in error &&
+              error.code === "23505"
+            ) {
             return resp.status(409).json({ message: "A product with this name already exists" });
         }
         return resp.status(500).json({message: "Failed to save product", error:error})

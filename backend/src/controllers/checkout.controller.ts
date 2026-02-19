@@ -1,10 +1,12 @@
-import type { Request, Response } from "express"
+import type { Response } from "express"
 import pool from "../config/db.ts"
 import type { AuthRequest } from "../middleware/jwt.middleware.ts"
 import Stripe from "stripe"
 import * as dotenv from "dotenv";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "")
+dotenv.config()
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || "";
+const stripe = new Stripe(STRIPE_SECRET_KEY)
 
 export const checkout = async(session: Stripe.Checkout.Session) => {
     const client = await pool.connect();
@@ -31,7 +33,7 @@ export const checkout = async(session: Stripe.Checkout.Session) => {
             throw new Error("Cart is empty")
         }
 
-        let totalAmount = (session.amount_total || 0) / 100
+        const totalAmount = (session.amount_total || 0) / 100
 
         // create the order
         const orderResult = await client.query(
@@ -113,11 +115,13 @@ export const stripeWebhook = async(req: AuthRequest, resp: Response) => {
      let event;
 
     try {
-        event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+        event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_SECRET_KEY );
     } catch (err) {
-        return resp.status(400).send(`Webhook Error: ${err?.message}`);
+        if(err !== null && typeof err === "object" && "message" in err ){
+            return resp.status(400).send(`Webhook Error: ${err?.message}`);
+        }
     }
-        if (event.type === 'checkout.session.completed') {
+        if (event !== null && typeof event === "object" && "type" in event && event.type === 'checkout.session.completed') {
         const session = event.data.object as Stripe.Checkout.Session;
         
         // NOW execute your DB Transaction logic from the previous step!

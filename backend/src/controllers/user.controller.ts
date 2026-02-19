@@ -108,7 +108,8 @@ export const updateUser = async(req: Request, resp: Response) => {
             last_name,
             username,
             email,
-            role
+            role,
+            id
         ])
 
         if(result.rowCount === 0){
@@ -127,7 +128,7 @@ export const updateUser = async(req: Request, resp: Response) => {
 export const deleteUser = async(req: Request, resp: Response)=>{
     try {
         const { id } = req.params;
-        const result = await pool.query("DELETE FROM users WHERE id = $1");
+        const result = await pool.query("DELETE FROM users WHERE id = $1",[id]);
         if(result.rowCount === 0){
             return resp.status(404).json({message:"User not found"})
         }
