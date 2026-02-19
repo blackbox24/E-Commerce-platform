@@ -21,6 +21,12 @@ async function handleResponse(response: Response) {
         const error = new Error(message);
         (error as any).status = response.status;
         (error as any).data = errorData;
+
+        // Log specific errors for debugging
+        if (response.status === 401) {
+            console.warn("Unauthorized request - potential token expiry");
+        }
+        
         throw error;
     }
     return response.json();
@@ -33,10 +39,8 @@ export const api = {
             Object.keys(options.params).forEach(key => url.searchParams.append(key, options.params![key]));
         }
 
-        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
         const headers = {
             'Content-Type': 'application/json',
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             ...options.headers,
         };
 
@@ -44,18 +48,16 @@ export const api = {
             ...options,
             method: 'GET',
             headers,
+            credentials: 'include', // Automatically send cookies
         });
         return handleResponse(response);
     },
 
     async post(endpoint: string, data?: any, options: RequestOptions = {}) {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-        
         // Handle FormData (for file uploads)
         const isFormData = data instanceof FormData;
         
         const headers: any = {
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             ...options.headers,
         };
 
@@ -67,17 +69,15 @@ export const api = {
             ...options,
             method: 'POST',
             headers,
+            credentials: 'include',
             body: isFormData ? data : JSON.stringify(data),
         });
         return handleResponse(response);
     },
 
     async patch(endpoint: string, data?: any, options: RequestOptions = {}) {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-        
         const isFormData = data instanceof FormData;
         const headers: any = {
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             ...options.headers,
         };
 
@@ -89,17 +89,15 @@ export const api = {
             ...options,
             method: 'PATCH',
             headers,
+            credentials: 'include',
             body: isFormData ? data : JSON.stringify(data),
         });
         return handleResponse(response);
     },
 
     async put(endpoint: string, data?: any, options: RequestOptions = {}) {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-        
         const isFormData = data instanceof FormData;
         const headers: any = {
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             ...options.headers,
         };
 
@@ -111,16 +109,15 @@ export const api = {
             ...options,
             method: 'PUT',
             headers,
+            credentials: 'include',
             body: isFormData ? data : JSON.stringify(data),
         });
         return handleResponse(response);
     },
 
     async delete(endpoint: string, options: RequestOptions = {}) {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
         const headers = {
             'Content-Type': 'application/json',
-            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             ...options.headers,
         };
 
@@ -128,6 +125,7 @@ export const api = {
             ...options,
             method: 'DELETE',
             headers,
+            credentials: 'include',
         });
         return handleResponse(response);
     },

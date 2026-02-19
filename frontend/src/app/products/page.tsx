@@ -1,4 +1,3 @@
-// src/app/products/page.tsx
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -7,6 +6,7 @@ import { productService } from '@/services/product.service';
 import { cartService } from '@/services/cart.service';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 interface Product {
   id: number;
@@ -23,7 +23,10 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 8; // Increased for better layout
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const BASE_URL = API_URL.replace('/api', '');
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -32,6 +35,7 @@ export default function ProductsPage() {
       setProducts(response.products || []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch products');
+      toast.error(err.message || 'Failed to fetch products');
     } finally {
       setLoading(false);
     }
@@ -43,15 +47,16 @@ export default function ProductsPage() {
 
   const handleAddToCart = async (productId: number) => {
     if (!isAuthenticated) {
+      toast.error('Please login to add items to cart');
       router.push('/login');
       return;
     }
 
     try {
       await cartService.addCartItem({ product_id: productId, quantity: 1 });
-      alert('Product added to cart!');
+      toast.success('Product added to cart!');
     } catch (err: any) {
-      alert(err.message || 'Failed to add product to cart');
+      toast.error(err.message || 'Failed to add product to cart');
     }
   };
 
@@ -59,10 +64,10 @@ export default function ProductsPage() {
     if (!confirm('Are you sure you want to delete this product?')) return;
     try {
       await productService.deleteProduct(productId.toString());
-      alert('Product deleted successfully');
+      toast.success('Product deleted successfully');
       fetchProducts();
     } catch (err: any) {
-      alert(err.message || 'Failed to delete product');
+      toast.error(err.message || 'Failed to delete product');
     }
   };
 
@@ -73,6 +78,7 @@ export default function ProductsPage() {
   const totalPages = Math.ceil(products.length / itemsPerPage);
 
   const renderPagination = () => {
+    if (totalPages <= 1) return null;
     const pages = [];
     for (let i = 1; i <= totalPages; i++) {
       pages.push(
@@ -96,7 +102,7 @@ export default function ProductsPage() {
         >
           <span className="sr-only">Previous</span>
           <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 01-1.414 1.414l-4-4a1 1 010-1.414l4-4a1 1 011.414 0z" clipRule="evenodd" />
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 11-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
         </button>
         {pages}
@@ -107,11 +113,17 @@ export default function ProductsPage() {
         >
           <span className="sr-only">Next</span>
           <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fillRule="evenodd" d="M7.293 14.707a1 1 010-1.414L10.586 10 7.293 6.707a1 1 011.414-1.414l4 4a1 1 010 1.414l-4 4a1 1 01-1.414 0z" clipRule="evenodd" />
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
         </button>
       </nav>
     );
+  };
+
+  const getImageUrl = (photoUrl: string | null) => {
+    if (!photoUrl) return "https://picsum.photos/id/237/200/300";
+    if (photoUrl.startsWith('http')) return photoUrl;
+    return `${BASE_URL}/${photoUrl.replace(/\\/g, '/')}`;
   };
 
   return (
@@ -124,56 +136,65 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {error && (
+      {error && !loading && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center" role="alert">
           <span className="block sm:inline">{error}</span>
+          <button onClick={fetchProducts} className="ml-4 underline font-bold">Retry</button>
         </div>
       )}
 
       {!loading && !error && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {currentProducts.map(product => (
-              <div key={product.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
-                <img 
-                  src={product.photo_url ? (product.photo_url.startsWith('http') ? product.photo_url : `http://localhost:3000/${product.photo_url.replace(/\\/g, '/')}`) : "https://picsum.photos/id/237/200/300"} 
-                  alt={product.name} 
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
-                />
-                <div className="p-5">
-                  <h3 className="font-bold text-xl text-gray-900 mb-2">{product.name}</h3>
-                  <p className="text-gray-600 text-sm mb-4">Stock: {product.quantity}</p>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-2xl font-extrabold text-gray-800">${product.price}</span>
-                      <button 
-                        onClick={() => handleAddToCart(product.id)}
-                        className="bg-black text-white px-5 py-2 rounded-lg font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150"
-                      >
-                        Add to Cart
-                      </button>
-                    </div>
-                    {user?.role === 'admin' && (
-                      <div className="flex gap-2 border-t pt-2">
-                        <Link 
-                          href={`/admin/products/update/${product.id}`}
-                          className="flex-1 text-center bg-gray-200 text-gray-800 px-3 py-1 rounded hover:bg-gray-300 transition-colors text-sm font-semibold"
-                        >
-                          Update
-                        </Link>
+          {products.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-xl text-gray-500">No products found.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {currentProducts.map(product => (
+                <div key={product.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group flex flex-col h-full">
+                  <div className="relative overflow-hidden h-48">
+                    <img 
+                      src={getImageUrl(product.photo_url)} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                    />
+                  </div>
+                  <div className="p-5 flex flex-col flex-grow">
+                    <h3 className="font-bold text-xl text-gray-900 mb-2 truncate">{product.name}</h3>
+                    <p className="text-gray-600 text-sm mb-4">Stock: {product.quantity}</p>
+                    <div className="mt-auto">
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-2xl font-extrabold text-gray-800">${product.price}</span>
                         <button 
-                          onClick={() => handleDelete(product.id)}
-                          className="flex-1 bg-red-100 text-red-600 px-3 py-1 rounded hover:bg-red-200 transition-colors text-sm font-semibold"
+                          onClick={() => handleAddToCart(product.id)}
+                          className="bg-black text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150"
                         >
-                          Delete
+                          Add to Cart
                         </button>
                       </div>
-                    )}
+                      {user?.role === 'admin' && (
+                        <div className="flex gap-2 border-t pt-4">
+                          <Link 
+                            href={`/admin/products/update/${product.id}`}
+                            className="flex-1 text-center bg-gray-100 text-gray-800 px-3 py-2 rounded hover:bg-gray-200 transition-colors text-sm font-bold"
+                          >
+                            Update
+                          </Link>
+                          <button 
+                            onClick={() => handleDelete(product.id)}
+                            className="flex-1 bg-red-50 text-red-600 px-3 py-2 rounded hover:bg-red-100 transition-colors text-sm font-bold"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           <div className="flex justify-center mt-12">
             {renderPagination()}
           </div>

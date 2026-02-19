@@ -25,7 +25,7 @@ export default function LoginPage() {
     setError('');
     try {
       const response = await authService.login({ username, password });
-      login(response.token, response.user);
+      login(response.user);
     } catch (err: any) {
       setError(err.message || 'Invalid username or password');
     }

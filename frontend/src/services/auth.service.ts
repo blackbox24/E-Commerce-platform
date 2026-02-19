@@ -8,4 +8,10 @@ export const authService = {
     async signup(userData: any) {
         return api.post('/auth/register', userData);
     },
+    async logout() {
+        return api.post('/auth/logout');
+    },
+    async getMe() {
+        return api.get('/auth/me');
+    }
 };

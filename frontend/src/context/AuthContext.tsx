@@ -1,59 +1,68 @@
 // src/context/AuthContext.tsx
-"use client"; // This is a client component
+"use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { authService } from '@/services/auth.service';
+
+interface User {
+    id: string;
+    username: string;
+    email: string;
+    role: string;
+}
 
 interface AuthContextType {
-    user: { id: string; email: string; name?: string } | null;
-    token: string | null;
-    login: (token: string, userData: { id: string; email: string; name?: string }) => void;
+    user: User | null;
+    login: (userData: User) => void;
     logout: () => void;
     isAuthenticated: boolean;
     isLoading: boolean;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<{ id: string; email: string; name?: string } | null>(null);
-    const [token, setToken] = useState<string | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
-    useEffect(() => {
-        // On mount, try to load token and user from localStorage
-        const storedToken = localStorage.getItem('authToken');
-        const storedUser = localStorage.getItem('authUser');
-        if (storedToken && storedUser) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
+    const refreshUser = async () => {
+        try {
+            const data = await authService.getMe();
+            setUser(data.user);
+        } catch (error) {
+            setUser(null);
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
+    };
+
+    useEffect(() => {
+        refreshUser();
     }, []);
 
-    const login = (newToken: string, userData: { id: string; email: string; name?: string }) => {
-        setToken(newToken);
+    const login = (userData: User) => {
         setUser(userData);
-        localStorage.setItem('authToken', newToken);
-        localStorage.setItem('authUser', JSON.stringify(userData));
-        // Redirect to a dashboard or home page after login
         router.push('/dashboard');
     };
 
-    const logout = () => {
-        setToken(null);
-        setUser(null);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('authUser');
-        // Redirect to login page after logout
-        router.push('/login');
+    const logout = async () => {
+        try {
+            await authService.logout();
+        } catch (err) {
+            console.error("Logout error", err);
+        } finally {
+            setUser(null);
+            router.push('/login');
+        }
     };
 
-    const isAuthenticated = !!token;
+    const isAuthenticated = !!user;
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated, isLoading }}>
+        <AuthContext.Provider value={{ user, login, logout, isAuthenticated, isLoading, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );
