@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test File upload</title>
+    <style>
+      form {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid black;
+        width: 20%;
+      }
+      form > div {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Upload File</h3>
+    <form method="post" action="" enctype="multipart/form-data" id="myform">
+      <div>
+        <label>Product Name</label>
+        <input type="text" name="name" />
+      </div>
+      <div>
+        <label>Product Quantity</label>
+        <input type="number" name="quantity" />
+      </div>
+      <div>
+        <label>Product Price</label>
+        <input type="number" name="price" />
+      </div>
+      <div>
+        <label>Product Photo</label>
+        <input type="file" name="photo_url" accept="image/*.png" />
+      </div>
+      <button type="submit" name="submit">Submit</button>
+    </form>
+    <script type="text/javascript">
+      const myform = document.getElementById("myform");
+      addEventListener("submit", (e) => {
+        e.preventDefault();
+        console.log(e.target.photo_url.files);
+        const formData = new FormData(myform);
+
+        const authToken =
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMiLCJ1c2VybmFtZSI6ImFkbWluIiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc3MTE1MTA5OSwiZXhwIjoxNzcxMjM3NDk5fQ.EE5xs2bJEgUcRZrNe3vMfACWcUROHgX3LRlwOpwApBI";
+
+        fetch("http://localhost:5000/api/products/", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + authToken,
+          },
+          body: formData,
+        })
+          .then((response) => {
+            // Check if the request was successful
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json(); // Parse the response body as JSON
+          })
+          .then((data) => {
+            console.log("Success:", data);
+            alert("File uploaded successfully!");
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("File upload failed.");
+          });
+      });
+      const addProduct = async (e) => {
+        const data = {
+          name: e.target.name.value,
+          price: parseFloat(e.target.price.value),
+          quantity: parseInt(e.target.quantity.value),
+          photo_url: e,
+        };
+      };
+    </script>
+  </body>
+</html>

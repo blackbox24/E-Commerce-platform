@@ -1,0 +1,57 @@
+{
+  "name": "e-commerce-platform",
+  "version": "1.0.0",
+  "description": "E-Commerce platform with cart and payment gateway integration.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "npx nodemon src/index.ts",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --ext .js,.ts --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackbox24/E-Commerce-platform.git"
+  },
+  "author": "Hope Decardi-Nelson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blackbox24/E-Commerce-platform/issues"
+  },
+  "homepage": "https://github.com/blackbox24/E-Commerce-platform#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.2.3",
+    "@types/pg": "^8.16.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
+    "autoprefixer": "^10.4.24",
+    "eslint": "^10.0.0",
+    "nodemon": "^1.0.2",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.18.0"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
+    "pg": "^8.18.0",
+    "stripe": "^20.3.1",
+    "typescript-estree": "^18.1.0"
+  }
+}
