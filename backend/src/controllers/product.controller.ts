@@ -12,14 +12,14 @@ export const getAllProducts = async(req: Request, resp:Response) => {
             const nameSearch = `%${name}%` || null;
             const priceSearch = `%${price}%` || null;
             const query = `
-                SELECT id, name, price, quantity 
+                SELECT id, name, price, quantity, photo_url
                 FROM products 
                 WHERE ($1::text IS NOT NULL AND name ILIKE $1)
                 OR ($2::text IS NOT NULL AND price::text LIKE $2)
             `;
             products = await pool.query(query,[nameSearch,priceSearch]);
         }else{
-            products = await pool.query(`SELECT id, name, price, quantity FROM products`);
+            products = await pool.query(`SELECT id, name, price, quantity, photo_url FROM products`);
         }
         if(products.rows.length === 0){
             return resp.status(200).json({message:"Success",products:[]})
@@ -71,9 +71,9 @@ export const addProduct = async(req:Request, resp: Response) => {
         }
         let photo_url;
         if( req.file ){
-            // store the file locally
-            photo_url = req.file.path;
-            console.log(req.file.path)
+            // store the relative path for the frontend
+            photo_url = `uploads/${req.file.filename}`;
+            console.log(photo_url)
         }
         else{
             photo_url = null;
@@ -124,9 +124,9 @@ export const updateProduct = async(req:Request, resp: Response) => {
 
         let photo_url;
         if( req.file ){
-            // store the file locally
-            photo_url = req.file.path;
-            console.log(req.file.path)
+            // store the relative path for the frontend
+            photo_url = `uploads/${req.file.filename}`;
+            console.log(photo_url)
         }
         else{
             photo_url = productExists.rows[0].photo_url;

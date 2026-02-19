@@ -54,8 +54,8 @@ export default function ViewUserPage({ params }: { params: { id: string } }) {
           <p className="text-lg text-gray-700"><span className="font-semibold text-gray-900">Role:</span> {user.role}</p>
         </div>
         <div className="mt-8 flex flex-col sm:flex-row justify-end space-y-4 sm:space-y-0 sm:space-x-4">
-          <button className="bg-red-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ease-in-out duration-150">Delete User</button>
-          <Link href="/view-users" className="bg-gray-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">Back to Users</Link>
+          <button className="bg-black text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">Delete User</button> {/* Changed colors */}
+          <Link href="/view-users" className="bg-gray-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">Back to Users</Link> {/* Changed colors */}
         </div>
       </div>
     </div>

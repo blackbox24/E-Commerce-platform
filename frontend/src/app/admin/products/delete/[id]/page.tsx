@@ -61,10 +61,10 @@ export default function DeleteProductPage({ params }: { params: { id: string } }
       <h2 className="text-4xl font-extrabold text-gray-900 text-center mb-10">Delete Product: {product.name}</h2>
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 max-w-2xl mx-auto text-center">
         <p className="text-lg text-gray-700 mb-4">You are about to delete product <span className="font-bold text-gray-900">"{product.name}" (ID: {product.id})</span>.</p>
-        <p className="text-red-600 font-semibold mb-6">This action cannot be undone.</p>
+        <p className="text-black font-semibold mb-6">This action cannot be undone.</p>
         <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 mt-8">
-          <button onClick={handleDelete} className="bg-red-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition ease-in-out duration-150">Confirm Delete</button>
-          <Link href="/admin/dashboard" className="bg-gray-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">Cancel</Link>
+          <button onClick={handleDelete} className="bg-black text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">Confirm Delete</button>
+          <Link href="/admin/dashboard" className="bg-gray-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150">Cancel</Link>
         </div>
       </div>
     </div>

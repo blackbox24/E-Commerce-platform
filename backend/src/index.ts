@@ -14,27 +14,6 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Now you can use it as usual
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage:StorageEngine  = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir)
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
-  }
-})
-
-
-const upload = multer({ storage: storage})
 
 dotenv.config()
 
@@ -47,11 +26,15 @@ app.use(cors())
 app.use(express.json())
 
 app.use("/api/auth",auth_router);
-app.use("/api/products",  upload.single('photo_url'), product_router);
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);app.use("/api/products", product_router);
 app.use("/api/carts", cart_router);
 app.use("/api/checkout",checkout_router);
 app.use("/api/orders",order_router);
 app.use("/api/users",user_router);
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/api/healthy",async(req: Request, resp: Response)=>{
     resp.status(200).json({message:"Server is healthy and running on PORT "+ PORT})

@@ -3,40 +3,74 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { productService } from '@/services/product.service';
+import { cartService } from '@/services/cart.service';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface Product {
   id: number;
   name: string;
-  description: string;
-  imageUrl: string;
   price: string;
+  quantity: number;
+  photo_url: string | null;
 }
 
 export default function ProductsPage() {
+  const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
 
-  // Simulated product data
-  const allProducts: Product[] = [
-    { id: 1, name: "Next.js Product 1", description: "Dynamically loaded product for Next.js.", imageUrl: "https://via.placeholder.com/300/FF0000/FFFFFF?text=Product+1", price: "19.99" },
-    { id: 2, name: "Next.js Product 2", description: "Another dynamic product for Next.js.", imageUrl: "https://via.placeholder.com/300/00FF00/FFFFFF?text=Product+2", price: "29.99" },
-    { id: 3, name: "Next.js Product 3", description: "More dynamic products.", imageUrl: "https://via.placeholder.com/300/0000FF/FFFFFF?text=Product+3", price: "39.99" },
-    { id: 4, name: "Next.js Product 4", description: "High quality product.", imageUrl: "https://via.placeholder.com/300/FFFF00/000000?text=Product+4", price: "49.99" },
-    { id: 5, name: "Next.js Product 5", description: "New arrival.", imageUrl: "https://via.placeholder.com/300/FF5733/FFFFFF?text=Product+5", price: "24.99" },
-    { id: 6, name: "Next.js Product 6", description: "Best seller.", imageUrl: "https://via.placeholder.com/300/33FF57/FFFFFF?text=Product+6", price: "69.99" },
-    { id: 7, name: "Next.js Product 7", description: "Limited stock.", imageUrl: "https://via.placeholder.com/300/5733FF/FFFFFF?text=Product+7", price: "99.99" },
-    { id: 8, name: "Next.js Product 8", description: "On sale now!", imageUrl: "https://via.placeholder.com/300/FFFF33/000000?text=Product+8", price: "34.99" }
-  ];
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await productService.getAllProducts();
+      setProducts(response.products || []);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch products');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // In a real application, you'd fetch products from an API here
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setProducts(allProducts.slice(startIndex, endIndex));
-  }, [currentPage]);
+    fetchProducts();
+  }, []);
 
-  const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+  const handleAddToCart = async (productId: number) => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      await cartService.addCartItem({ product_id: productId, quantity: 1 });
+      alert('Product added to cart!');
+    } catch (err: any) {
+      alert(err.message || 'Failed to add product to cart');
+    }
+  };
+
+  const handleDelete = async (productId: number) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+    try {
+      await productService.deleteProduct(productId.toString());
+      alert('Product deleted successfully');
+      fetchProducts();
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete product');
+    }
+  };
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProducts = products.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(products.length / itemsPerPage);
 
   const renderPagination = () => {
     const pages = [];
@@ -45,8 +79,8 @@ export default function ProductsPage() {
         <button
           key={i}
           onClick={() => setCurrentPage(i)}
-          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-            ${currentPage === i ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}`
+          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500
+            ${currentPage === i ? 'z-10 bg-gray-100 border-gray-300 text-gray-800' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}`
           }
         >
           {i}
@@ -58,7 +92,7 @@ export default function ProductsPage() {
         <button
           onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
           disabled={currentPage === 1}
-          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
         >
           <span className="sr-only">Previous</span>
           <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -69,7 +103,7 @@ export default function ProductsPage() {
         <button
           onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
           disabled={currentPage === totalPages}
-          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
         >
           <span className="sr-only">Next</span>
           <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -83,26 +117,68 @@ export default function ProductsPage() {
   return (
     <div className="container mx-auto py-12 px-4">
       <h2 className="text-4xl font-extrabold text-gray-900 text-center mb-10">Our Products</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {products.map(product => (
-          <div key={product.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
-            <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
-            <div className="p-5">
-              <h3 className="font-bold text-xl text-gray-900 mb-2">{product.name}</h3>
-              <p className="text-gray-600 text-sm mb-4 line-clamp-2">{product.description}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-2xl font-extrabold text-indigo-600">${product.price}</span>
-                <button className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ease-in-out duration-150">
-                  Add to Cart
-                </button>
+      
+      {loading && (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center" role="alert">
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+
+      {!loading && !error && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {currentProducts.map(product => (
+              <div key={product.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden group">
+                <img 
+                  src={product.photo_url ? (product.photo_url.startsWith('http') ? product.photo_url : `http://localhost:3000/${product.photo_url.replace(/\\/g, '/')}`) : "https://picsum.photos/id/237/200/300"} 
+                  alt={product.name} 
+                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
+                />
+                <div className="p-5">
+                  <h3 className="font-bold text-xl text-gray-900 mb-2">{product.name}</h3>
+                  <p className="text-gray-600 text-sm mb-4">Stock: {product.quantity}</p>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-2xl font-extrabold text-gray-800">${product.price}</span>
+                      <button 
+                        onClick={() => handleAddToCart(product.id)}
+                        className="bg-black text-white px-5 py-2 rounded-lg font-semibold hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition ease-in-out duration-150"
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
+                    {user?.role === 'admin' && (
+                      <div className="flex gap-2 border-t pt-2">
+                        <Link 
+                          href={`/admin/products/update/${product.id}`}
+                          className="flex-1 text-center bg-gray-200 text-gray-800 px-3 py-1 rounded hover:bg-gray-300 transition-colors text-sm font-semibold"
+                        >
+                          Update
+                        </Link>
+                        <button 
+                          onClick={() => handleDelete(product.id)}
+                          className="flex-1 bg-red-100 text-red-600 px-3 py-1 rounded hover:bg-red-200 transition-colors text-sm font-semibold"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="flex justify-center mt-12">
-        {renderPagination()}
-      </div>
+          <div className="flex justify-center mt-12">
+            {renderPagination()}
+          </div>
+        </>
+      )}
     </div>
   );
 }

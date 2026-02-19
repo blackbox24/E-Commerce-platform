@@ -46,6 +46,7 @@ export const getAllAdminOrders = async(req: AuthRequest, resp: Response) => {
                 o.total_amount, 
                 o.status,
                 o.created_at,
+                u.username,
                 JSON_AGG(
                     JSON_BUILD_OBJECT(
                         'name', p.name,
@@ -55,9 +56,10 @@ export const getAllAdminOrders = async(req: AuthRequest, resp: Response) => {
                     )
                 ) AS items
             FROM orders o
+            JOIN users u ON o.user_id = u.id
             JOIN order_items oi ON o.id = oi.order_id
             JOIN products p ON p.id = oi.product_id
-            GROUP BY o.id
+            GROUP BY o.id, u.username
             ORDER BY o.created_at DESC
         `);
         if(results.rows.length === 0){

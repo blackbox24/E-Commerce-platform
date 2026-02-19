@@ -5,8 +5,8 @@ import { checkAdminRole } from "../middleware/permission.middleware.ts";
 
 const router = Router();
 
-router.get("",authMiddleware, getAllClientOrders);
-router.get("",authMiddleware,checkAdminRole,getAllAdminOrders);
+router.get("/",authMiddleware, getAllClientOrders);
+router.get("/admin",authMiddleware,checkAdminRole,getAllAdminOrders);
 
 
 export default router;

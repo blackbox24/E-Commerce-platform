@@ -5,80 +5,88 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { orderService } from '@/services/order.service';
 
 interface Order {
-  id: string;
-  customerName: string;
-  total: string;
-  date: string;
+  order_id: number;
+  username: string;
+  total_amount: string;
+  created_at: string;
   status: string;
+  items: any[];
 }
 
 export default function AdminOrdersPage() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Simulated order data
-  const simulatedOrders: Order[] = [
-    { id: 'ORD001', customerName: 'John Doe', total: '109.97', date: '2024-01-15', status: 'Delivered' },
-    { id: 'ORD002', customerName: 'Jane Smith', total: '59.99', date: '2024-02-01', status: 'Processing' },
-    { id: 'ORD003', customerName: 'Alice Johnson', total: '200.50', date: '2024-02-10', status: 'Shipped' },
-  ];
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await orderService.getAdminOrders();
+      setOrders(response.orders || []);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch orders');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/admin-login'); // Redirect to admin login if not authenticated
+    if (!authLoading && !isAuthenticated) {
+      router.push('/admin-login');
+    } else if (isAuthenticated && user?.role !== 'admin') {
+      router.push('/403');
+    } else if (isAuthenticated) {
+      fetchOrders();
     }
-    // In a real app, also check if user has 'admin' role
-    // if (!isLoading && isAuthenticated && user?.role !== 'admin') {
-    //   router.push('/403'); // Redirect to 403 if not authorized
-    // }
-    else if (isAuthenticated) { // Temporarily allow any authenticated user for demo
-      // In a real application, fetch orders from an API
-      setOrders(simulatedOrders);
-    }
-  }, [isAuthenticated, isLoading, router, user]);
+  }, [isAuthenticated, authLoading, router, user]);
 
-  if (isLoading || !isAuthenticated) { // Add user?.role check here if uncommenting above
+  if (authLoading || (isAuthenticated && loading && orders.length === 0)) {
     return <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center text-xl text-gray-700">Loading...</div>;
   }
+
+  if (!isAuthenticated || user?.role !== 'admin') return null;
 
   return (
     <div className="container mx-auto py-12 px-4 min-h-[calc(100vh-8rem)]">
       <h2 className="text-4xl font-extrabold text-gray-900 text-center mb-10">All Orders</h2>
+      
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center mb-6" role="alert">
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+
       <div className="bg-white rounded-xl shadow-lg overflow-x-auto p-6 md:p-8">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Order ID</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Customer</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Total</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Date</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {orders.map(order => (
-              <tr key={order.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.customerName}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${order.total}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.date}</td>
+              <tr key={order.order_id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.order_id}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.username}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${order.total_amount}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(order.created_at).toLocaleDateString()}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                    order.status === 'Processing' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-blue-100 text-blue-800'
-                  }`}>
+                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-200 text-gray-800 uppercase">
                     {order.status}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link href={`/admin/orders/${order.id}`} className="text-indigo-600 hover:text-indigo-900 mr-4 transition-colors duration-150">View</Link>
-                  <button className="text-blue-600 hover:text-blue-900 mr-4 transition-colors duration-150">Edit</button>
-                  <button className="text-red-600 hover:text-red-900 transition-colors duration-150">Delete</button>
+                  <button className="text-gray-800 hover:text-black mr-4 transition-colors duration-150 font-semibold">Details</button>
                 </td>
               </tr>
             ))}
