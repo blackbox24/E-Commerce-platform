@@ -4,10 +4,11 @@ A production-ready, full-stack e-commerce solution built with **Next.js**, **Exp
 
 ## 🏗 Project Architecture
 
-The project is divided into two main services, orchestrated with **Docker Compose**:
+The project is orchestrated with **Docker Compose**, utilizing **Nginx** as a high-performance entry point:
 
-- **Frontend**: Next.js (App Router) storefront with a modern, responsive UI.
-- **Backend**: Express.js REST API with PostgreSQL for data persistence and Stripe for secure transactions.
+- **Nginx**: Acting as a Reverse Proxy and Load Balancer (Port 80).
+- **Frontend**: Next.js (App Router) storefront, optimized for performance and SEO.
+- **Backend**: Express.js REST API with PostgreSQL for data persistence.
 
 ---
 
@@ -31,8 +32,8 @@ Ensure you have [Docker](https://www.docker.com/) and [Docker Compose](https://d
    ```bash
    docker-compose up --build
    ```
-   - **Frontend**: [http://localhost:3000](http://localhost:3000)
-   - **Backend API**: [http://localhost:5000](http://localhost:5000)
+   - **Storefront & Admin**: [http://localhost](http://localhost) (Port 80)
+   - **API Access**: [http://localhost/api](http://localhost/api)
 
 ---
 

@@ -8,6 +8,7 @@ A high-performance, SEO-friendly storefront built with Next.js and Tailwind CSS.
 - **Styling**: Tailwind CSS
 - **State Management**: React Context API (Auth)
 - **Notifications**: `react-hot-toast`
+- **Infrastructure**: Nginx Reverse Proxy (Port 80 routing)
 - **Deployment**: Docker (Standalone output optimization)
 
 ---
@@ -18,6 +19,7 @@ A high-performance, SEO-friendly storefront built with Next.js and Tailwind CSS.
 - **Server Components**: Used for initial page structure and SEO-critical content.
 - **Client Components**: Used for interactive elements (Cart, Auth, Forms) and state-heavy interactions.
 - **Cookie-Based Auth**: By moving from `localStorage` to HTTP-only cookies, the app can perform authenticated data fetching directly in Server Components, eliminating "flicker" during hydration.
+- **Unified Routing**: All API and image requests are routed relatively (e.g., `/api/...`) via Nginx, simplifying environment configuration and preventing CORS issues in production.
 
 ### 2. Service Layer Pattern
 - **Centralized API**: Located in `src/services/api.ts`, providing a consistent wrapper around `fetch` with automatic credential handling (`credentials: 'include'`).

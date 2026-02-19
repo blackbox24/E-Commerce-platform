@@ -9,6 +9,7 @@ A robust, production-ready RESTful API for a modern e-commerce platform. Built w
 - **Authentication**: JWT via HTTP-only Cookies
 - **Payments**: Stripe SDK (Checkout Sessions & Webhooks)
 - **Containerization**: Docker (Multi-stage Alpine builds)
+- **Proxy/LB**: Nginx (Reverse routing and load balancing)
 
 ---
 
@@ -17,6 +18,7 @@ A robust, production-ready RESTful API for a modern e-commerce platform. Built w
 ### 1. Authentication & Security
 - **Identity Management**: Implements `bcrypt` for secure password hashing and `jsonwebtoken` (JWT) for session management.
 - **Secure Sessions**: Uses HTTP-only, Secure, and SameSite cookies to mitigate XSS and CSRF risks.
+- **Internal Networking**: The backend is isolated within the Docker network and only accessible through the Nginx reverse proxy, protecting it from direct public exposure.
 - **Role-Based Access Control (RBAC)**: Middleware-driven permission checks for `user` and `admin` roles.
 - **CORS Management**: Configured for credentialed requests, allowing secure frontend-to-backend communication.
 
