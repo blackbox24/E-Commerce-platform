@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { getAllAdminOrders, getAllClientOrders } from "../controllers/order.controller.ts";
-import authMiddleware from "../middleware/jwt.middleware.ts";
-import { checkAdminRole } from "../middleware/permission.middleware.ts";
+import { getAllAdminOrders, getAllClientOrders } from "../controllers/order.controller";
+import authMiddleware from "../middleware/jwt.middleware";
+import { checkAdminRole } from "../middleware/permission.middleware";
 
 const router = Router();
 

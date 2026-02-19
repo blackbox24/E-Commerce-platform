@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { getAllProducts, getSingleProduct, addProduct, updateProduct, deleteProduct } from "../controllers/product.controller.ts";
-import authMiddleware from "../middleware/jwt.middleware.ts";
-import { checkAdminRole } from "../middleware/permission.middleware.ts";
-import { upload } from "../config/multer.ts";
+import { getAllProducts, getSingleProduct, addProduct, updateProduct, deleteProduct } from "../controllers/product.controller";
+import authMiddleware from "../middleware/jwt.middleware";
+import { checkAdminRole } from "../middleware/permission.middleware";
+import { upload } from "../config/multer";
 
 
 

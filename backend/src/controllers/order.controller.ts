@@ -1,6 +1,6 @@
 import type { Response } from "express";
-import pool from "../config/db.ts";
-import type { AuthRequest } from "../middleware/jwt.middleware.ts";
+import pool from "../config/db";
+import type { AuthRequest } from "../middleware/jwt.middleware";
 
 export const getAllClientOrders = async(req: AuthRequest, resp: Response) => {
     try{

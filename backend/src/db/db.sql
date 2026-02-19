@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS orders (
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     total_amount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     status VARCHAR(10) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','cancelled','paid','completed')),
+    stripe_session_id VARCHAR(255) UNIQUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

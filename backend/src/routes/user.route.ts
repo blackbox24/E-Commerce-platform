@@ -5,9 +5,9 @@ import {
     addUser,
     deleteUser,
     updateUser
-} from "../controllers/user.controller.ts"
-import authMiddleware from "../middleware/jwt.middleware.ts";
-import { checkAdminRole } from "../middleware/permission.middleware.ts";
+} from "../controllers/user.controller"
+import authMiddleware from "../middleware/jwt.middleware";
+import { checkAdminRole } from "../middleware/permission.middleware";
 
 
 const router = Router();

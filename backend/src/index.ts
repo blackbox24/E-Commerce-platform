@@ -3,12 +3,12 @@ import type {Request, Response} from "express"
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import * as dotenv from "dotenv"
-import auth_router from "./routes/auth.routes.ts"
-import product_router from "./routes/products.routes.ts"
-import cart_router from "./routes/cart.routes.ts"
-import checkout_router from "./routes/checkout.routes.ts"
-import order_router from "./routes/orders.routes.ts"
-import user_router from "./routes/user.route.ts";
+import auth_router from "./routes/auth.routes"
+import product_router from "./routes/products.routes"
+import cart_router from "./routes/cart.routes"
+import checkout_router from "./routes/checkout.routes"
+import order_router from "./routes/orders.routes"
+import user_router from "./routes/user.route";
 
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -25,7 +25,13 @@ app.use(cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
     credentials: true
 }))
-app.use(express.json())
+app.use(express.json({
+    verify: (req: any, res, buf) => {
+        if (req.originalUrl.startsWith('/api/checkout/webhook')) {
+            req.rawBody = buf;
+        }
+    }
+}))
 app.use(cookieParser())
 
 app.use("/api/auth",auth_router);

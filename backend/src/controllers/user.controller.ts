@@ -1,5 +1,5 @@
 import type {Request, Response } from "express"
-import pool from "../config/db.ts";
+import pool from "../config/db";
 import bcrypt from "bcrypt";
 import * as dotenv from "dotenv";
 

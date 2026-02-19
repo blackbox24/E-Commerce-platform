@@ -1,38 +1,69 @@
-# E-COMMERENCE FRONTEND
+# E-Commerce Platform - Frontend (Next.js)
 
-## REQUIREMENTS
+A high-performance, SEO-friendly storefront built with Next.js and Tailwind CSS. This frontend is designed for speed, security, and a seamless user experience.
 
-- html/css/javascript
-- tailwindcss
-- cookie.js
+## 🚀 Tech Stack
+- **Framework**: Next.js (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: React Context API (Auth)
+- **Notifications**: `react-hot-toast`
+- **Deployment**: Docker (Standalone output optimization)
 
-## PAGES
+---
 
-- [ ] LOGIN PAGE
-- [ ] SIGNUP PAGE
-- [ ] HOME PAGE
-- [ ] PRODUCTS PAGE
-- [ ] CART PAGE
-- [ ] CHECKOUT PAGE
-- [ ] PROFILE PAGE
-- [ ] 404 PAGE
-- [ ] 500 PAGE
+## 🏗 Architecture & Best Practices
 
-- [ ] ADMIN PAGE LOGIN
-- [ ] VIEW USERS PAGE
-- [ ] VIEW USER PAGE
-- [ ] DELETE USER BUTTON
-- [ ] ADD USER BUTTON
-- [ ] VIEW PRODUCT PAGE
-- [ ] ADD PRODUCT PAGE
-- [ ] UPDATE PRODUCT PAGE
-- [ ] DELETE PRODUCT PAGE
-- [ ] VIEW CART PAGE
-- [ ] VIEW ORDERS PAGE
-- [ ] DASHBOARD PAGE
+### 1. Hybrid Rendering (SSR/CSR)
+- **Server Components**: Used for initial page structure and SEO-critical content.
+- **Client Components**: Used for interactive elements (Cart, Auth, Forms) and state-heavy interactions.
+- **Cookie-Based Auth**: By moving from `localStorage` to HTTP-only cookies, the app can perform authenticated data fetching directly in Server Components, eliminating "flicker" during hydration.
 
-## IMPLEMENTATIONS 
+### 2. Service Layer Pattern
+- **Centralized API**: Located in `src/services/api.ts`, providing a consistent wrapper around `fetch` with automatic credential handling (`credentials: 'include'`).
+- **Modular Services**: Dedicated service files (`auth.service.ts`, `product.service.ts`, etc.) abstract API logic away from components, making them easier to test and maintain.
 
-- [ ] API INTEGRATION USING AXIOS LIB
-- [ ] STORE TOKEN IN COOKIE USING COOKIE LIB
-- [ ] PASS THE TOKEN IN THE HEADERS AS AUTHENITCATION `BEARER <TOKEN>`
+### 3. Professional UI/UX
+- **Interactive Feedback**: Replaced standard `alert()` calls with `react-hot-toast` for non-blocking notifications.
+- **Responsive Design**: Mobile-first approach using Tailwind's utility classes.
+- **Dynamic Assets**: Robust image handling that supports both relative backend paths and external URLs.
+
+---
+
+## 📈 Future Bottlenecks (Real-World Scenarios)
+- **Large State Management**: As features grow (Wishlists, Compare, etc.), Context API might cause performance bottlenecks due to unnecessary re-renders. **Solution**: Migrate complex state to `Zustand` or `Redux Toolkit`.
+- **Image Optimization**: Serving raw images from the backend can impact LCP scores. **Solution**: Use Next.js `next/image` with a custom loader or an image CDN (Cloudinary).
+- **Client-side Filtering**: Filtering products in the browser becomes slow with 1000+ items. **Solution**: Implement server-side filtering and sorting via query parameters.
+
+---
+
+## 🚢 Deployment Strategies
+- **Standalone Build**: Configured `output: 'standalone'` in `next.config.ts`. This bundles only the minimal `node_modules` required for production, drastically reducing the Docker image footprint.
+- **Environment Injection**: Uses `NEXT_PUBLIC_` variables for build-time configuration (like API URLs).
+
+---
+
+## ✅ TODO List
+
+### Core Pages
+- [x] Home Page with Product Listing.
+- [x] Product Detail View (Admin CRUD).
+- [x] Shopping Cart with real-time updates.
+- [x] Secure Login/Signup pages.
+- [x] Admin Dashboard (Products, Users, Orders).
+- [x] Profile Page with Order History.
+
+### Features
+- [x] Cookie-based Auth Provider.
+- [x] Toast notification integration.
+- [x] Responsive navigation (Header/Footer).
+- [x] Stripe Checkout redirection.
+- [ ] Implement Search & Category filtering.
+- [ ] Add Loading Skeletons for better perceived performance.
+
+### Technical Quality
+- [x] Optimized Multi-stage Dockerfile.
+- [x] Standardized API Service layer.
+- [x] Dynamic Image URL resolution.
+- [ ] Implement React Error Boundaries.
+- [ ] Add E2E tests using Playwright or Cypress.

@@ -123,7 +123,8 @@ export default function ProductsPage() {
   const getImageUrl = (photoUrl: string | null) => {
     if (!photoUrl) return "https://picsum.photos/id/237/200/300";
     if (photoUrl.startsWith('http')) return photoUrl;
-    return `${BASE_URL}/${photoUrl.replace(/\\/g, '/')}`;
+    // Use relative path since Nginx will route /uploads to the backend
+    return `/${photoUrl.replace(/\\/g, '/')}`;
   };
 
   return (

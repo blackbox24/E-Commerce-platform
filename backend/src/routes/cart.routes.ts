@@ -1,6 +1,6 @@
 import {Router} from "express"
-import { getCartItems, addCartItem, removeCartItem, updateCartItem } from "../controllers/cart.controller.ts"
-import authMiddleware from "../middleware/jwt.middleware.ts"
+import { getCartItems, addCartItem, removeCartItem, updateCartItem } from "../controllers/cart.controller"
+import authMiddleware from "../middleware/jwt.middleware"
 
 const router = Router()
 

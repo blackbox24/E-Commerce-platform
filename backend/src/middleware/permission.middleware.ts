@@ -1,5 +1,5 @@
 import type {Response, NextFunction} from "express";
-import type { AuthRequest } from "./jwt.middleware.ts";
+import type { AuthRequest } from "./jwt.middleware";
 
 export const checkAdminRole = async(req: AuthRequest, resp: Response, next: NextFunction) => {
     try {
