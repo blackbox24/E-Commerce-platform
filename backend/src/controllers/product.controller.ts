@@ -5,7 +5,7 @@ import type { AuthRequest } from "../middleware/jwt.middleware.ts";
 
 export const getAllProducts = async(req: Request, resp:Response) => {
     try{
-        const { name, price, limit, page } = req.query;
+        const { name, price, limit = 8, page = 1 } = req.query;
         
         // Handle and validate pagination values
         let limitNum = parseInt(limit as string) || 8;
@@ -24,14 +24,15 @@ export const getAllProducts = async(req: Request, resp:Response) => {
             const nameSearch = name ? `%${name}%` : null;
             // eslint-disable-next-line no-constant-binary-expression
             const priceSearch = price ? `%${price}%` : null;
-            query += `
-                WHERE ($1::text IS NOT NULL AND name ILIKE $1)
+            query += ` WHERE ($1::text IS NOT NULL AND name ILIKE $1)
                 OR ($2::text IS NOT NULL AND price::text LIKE $2)
             `;
             values = [nameSearch,priceSearch];
         }
-        query += `LIMIT $${values.length + 1} OFFSET $${ values.length + 2 }`;
+        console.log(values.length)
+        query += ` LIMIT $${values.length + 1} OFFSET $${ values.length + 2 }`;
         values.push(Number(limit),offset)
+        console.log(values)
 
         const products = await pool.query(query, values);
         const countQuery = await pool.query("SELECT COUNT(*) FROM products");
